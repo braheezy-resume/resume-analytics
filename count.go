@@ -18,12 +18,10 @@ import (
 
 const tableName = "site-analytics"
 const keyName = "visitorCount"
+const partitionKey = "metrics"
 const site = "resume.braheezy.net"
 
 var dbClient *dynamodb.Client
-var item struct {
-	Count int `json:"visitorCount"`
-}
 
 func check(err error) {
 	if err != nil {
