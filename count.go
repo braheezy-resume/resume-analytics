@@ -65,7 +65,7 @@ func getCount() (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprint(item.Count), nil
+	return fmt.Sprintf(`{"count":"%v"}`, item.Count), nil
 }
 
 func checkTable() (bool, error) {
@@ -104,7 +104,7 @@ func updateCount() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprint("Updated count: ", output.Attributes["visitorCount"].(*types.AttributeValueMemberN).Value), nil
+	return fmt.Sprintf(`{"count":"%v"}`, output.Attributes["visitorCount"].(*types.AttributeValueMemberN).Value), nil
 }
 func main() {
 	// Connect to DB
