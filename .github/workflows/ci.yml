@@ -28,10 +28,10 @@ jobs:
         run: go get .
 
       - name: Test
-        run: go test -v ./...
+        run: go test -v .
 
       - name: Build
-        run: go build -o count -v ./...
+        run: go build -o count -v .
 
       - uses: actions/upload-artifact@v3
         with:
