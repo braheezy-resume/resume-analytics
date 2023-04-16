@@ -9,19 +9,18 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 const tableName = "site-analytics"
 const keyName = "visitorCount"
+const partitionKey = "metrics"
 const site = "resume.braheezy.net"
 
 var dbClient *dynamodb.Client
-var item struct {
-	Count int `json:"visitorCount"`
-}
 
 func check(err error) {
 	if err != nil {
@@ -46,20 +45,35 @@ func handleRequest(httpMethod string) {
 }
 
 func getCount() (string, error) {
-	scanInput := &dynamodb.ScanInput{
-		TableName:       aws.String(tableName),
-		AttributesToGet: []string{keyName},
+	key := map[string]types.AttributeValue{
+		partitionKey: &types.AttributeValueMemberS{Value: site},
 	}
 
-	result, err := dbClient.Scan(context.TODO(), scanInput)
-
+	// Define the DynamoDB expression to retrieve the visitorCount attribute
+	expr, err := expression.NewBuilder().
+		WithProjection(expression.NamesList(expression.Name(keyName))).
+		Build()
 	check(err)
 
-	if err := attributevalue.UnmarshalMap(result.Items[0], &item); err != nil {
-		return "", err
+	// Define the GetItem input with the expression
+	input := &dynamodb.GetItemInput{
+		TableName:                aws.String(tableName),
+		Key:                      key,
+		ProjectionExpression:     expr.Projection(),
+		ExpressionAttributeNames: expr.Names(),
 	}
 
-	return fmt.Sprintf("visitorCount:%v", item.Count), nil
+	// Retrieve the item from the DynamoDB table
+	output, err := dbClient.GetItem(context.Background(), input)
+	check(err)
+
+	// Extract the value of the visitorCount attribute
+	count := ""
+	if countAttr, ok := output.Item[keyName]; ok {
+		count = countAttr.(*types.AttributeValueMemberN).Value
+	}
+
+	return count, nil
 }
 
 func checkTable() (bool, error) {
