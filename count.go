@@ -65,7 +65,7 @@ func getCount() (string, error) {
 		return "", err
 	}
 
-	return string(item.Count), nil
+	return fmt.Sprint(item.Count), nil
 }
 
 func checkTable() (bool, error) {
