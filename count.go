@@ -40,7 +40,8 @@ func handleRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRe
 	case "PUT":
 		body, err = updateCount()
 	default:
-		checkTable()
+		// This is probably a terrible default case
+		_, err = checkTable()
 	}
 
 	if err != nil {
@@ -64,7 +65,7 @@ func getCount() (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("visitorCount:%v", item.Count), nil
+	return string(item.Count), nil
 }
 
 func checkTable() (bool, error) {
