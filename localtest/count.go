@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -27,27 +25,24 @@ var item struct {
 
 func check(err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Check fail! %v\n", err)
 	}
 }
 
-func handleRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+func handleRequest(httpMethod string) {
 	var body string
-	var err error
-	switch req.HTTPMethod {
+	switch httpMethod {
 	case "GET":
-		body, err = getCount()
+		body, _ = getCount()
 	case "PUT":
-		body, err = updateCount()
+		updateCount()
 	default:
+		// return UnhandledMethod()
 		checkTable()
+		body = "Table exists"
 	}
 
-	if err != nil {
-		return &events.APIGatewayProxyResponse{Body: "Oh no! Encountered an error", StatusCode: 400}, err
-	}
-
-	return &events.APIGatewayProxyResponse{Body: body, StatusCode: 200}, nil
+	fmt.Println(body)
 }
 
 func getCount() (string, error) {
@@ -83,7 +78,7 @@ func checkTable() (bool, error) {
 	return exists, err
 }
 
-func updateCount() (string, error) {
+func updateCount() {
 	// Specify the key of the item to update
 	key := map[string]types.AttributeValue{
 		"metrics": &types.AttributeValueMemberS{Value: site},
@@ -101,16 +96,22 @@ func updateCount() (string, error) {
 	// Execute the update operation and print the updated item
 	output, err := dbClient.UpdateItem(context.Background(), updateInput)
 	if err != nil {
-		return "", err
+		panic("failed to update item, " + err.Error())
 	}
-	return fmt.Sprint("Updated count: ", output.Attributes["visitorCount"].(*types.AttributeValueMemberN).Value), nil
+	fmt.Println("Updated item:", output.Attributes["visitorCount"].(*types.AttributeValueMemberN).Value)
 }
 func main() {
-	// Connect to DB
+	// Load the Shared AWS Configuration (~/.aws/config)
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	check(err)
 	dbClient = dynamodb.NewFromConfig(cfg)
 
-	// Handle lambda request from API gateway
-	lambda.Start(handleRequest)
+	if len(os.Args) > 1 {
+		fmt.Printf("arg is %v\n", os.Args[1])
+
+		handleRequest(os.Args[1])
+	} else {
+		handleRequest("")
+	}
+
 }
