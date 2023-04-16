@@ -51,7 +51,7 @@ jobs:
         with:
           name: count_build
 
-      - uses: appleboy/lambda-action@v0.1.8
+      - uses: appleboy/lambda-action@v0.1.9
         with:
           aws_access_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
