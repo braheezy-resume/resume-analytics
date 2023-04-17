@@ -46,6 +46,8 @@ func handleRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRe
 		return &events.APIGatewayProxyResponse{Body: "Oh no! Encountered an error", StatusCode: 400}, err
 	}
 
+	// AWS Docs say that API Gateway is capable of adding CORS headers to responses.
+	// But that wasn't working. The headers were not added. So we add them here.
 	headers := map[string]string{
 		"Access-Control-Allow-Origin":  "*",
 		"Access-Control-Allow-Methods": "GET,PUT",
@@ -87,7 +89,7 @@ func getCount() (string, error) {
 		count = countAttr.(*types.AttributeValueMemberN).Value
 	}
 
-	return count, nil
+	return fmt.Sprintf(`{"count": "%v"}`, count), nil
 }
 
 func checkTable() (bool, error) {
