@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -37,6 +38,16 @@ func handleRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRe
 		body, err = getCount()
 	case "PUT":
 		body, err = updateCount()
+	// Handling this preflight case to support CORS
+	case "OPTIONS":
+		headers := make(map[string]string)
+		headers["Access-Control-Allow-Origin"] = "*"
+		headers["Access-Control-Allow-Methods"] = "GET, PUT, OPTIONS"
+		headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+		return &events.APIGatewayProxyResponse{
+			StatusCode: http.StatusNoContent,
+			Headers:    headers,
+		}, nil
 	default:
 		// This is probably a terrible default case
 		_, err = checkTable()
@@ -50,7 +61,7 @@ func handleRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRe
 	// But that wasn't working. The headers were not added. So we add them here.
 	headers := map[string]string{
 		"Access-Control-Allow-Origin":  "*",
-		"Access-Control-Allow-Methods": "GET,PUT",
+		"Access-Control-Allow-Methods": "GET,PUT,OPTIONS",
 	}
 
 	return &events.APIGatewayProxyResponse{
