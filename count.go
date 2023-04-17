@@ -46,15 +46,9 @@ func handleRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRe
 		return &events.APIGatewayProxyResponse{Body: "Oh no! Encountered an error", StatusCode: 400}, err
 	}
 
-	headers := map[string]string{
-		"Access-Control-Allow-Origin":  "*",
-		"Access-Control-Allow-Methods": "GET,PUT",
-	}
-
 	return &events.APIGatewayProxyResponse{
 			Body:       body,
-			StatusCode: 200,
-			Headers:    headers},
+			StatusCode: 200},
 		nil
 }
 
