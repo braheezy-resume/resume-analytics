@@ -42,8 +42,7 @@ func handleRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRe
 		headers := make(map[string]string)
 		headers["Access-Control-Allow-Origin"] = "*"
 		headers["Access-Control-Allow-Methods"] = "GET, PUT, OPTIONS"
-		headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, access-control-allow-origin"
-		headers["Access-Control-Allow-Credentials"] = "true"
+		headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
 		return &events.APIGatewayProxyResponse{
 			StatusCode: 200,
 			Headers:    headers,
