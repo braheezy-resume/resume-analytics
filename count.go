@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -46,7 +45,7 @@ func handleRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRe
 		headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, access-control-allow-origin"
 		headers["Access-Control-Allow-Credentials"] = "true"
 		return &events.APIGatewayProxyResponse{
-			StatusCode: http.StatusNoContent,
+			StatusCode: 200,
 			Headers:    headers,
 		}, nil
 	default:
