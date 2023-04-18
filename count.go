@@ -44,6 +44,7 @@ func handleRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRe
 		headers["Access-Control-Allow-Origin"] = "*"
 		headers["Access-Control-Allow-Methods"] = "GET, PUT, OPTIONS"
 		headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, access-control-allow-origin"
+		headers["Access-Control-Allow-Credentials"] = "true"
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusNoContent,
 			Headers:    headers,
